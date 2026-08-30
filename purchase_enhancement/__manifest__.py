@@ -4,7 +4,7 @@
     'description': "\nLong description of module's purpose\n    ",
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
-    'category': 'Uncategorized',
+    'category': 'Supply Chain/Purchase',
     'version': '0.1',
     'depends': ['purchase'],
     'data': ['security/ir_rule.xml', 'views/views.xml', 'views/templates.xml'],
