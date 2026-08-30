@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="action_report_stock_card_report_html" model="ir.actions.client">
+        <field name="name">Stock Card Report</field>
+        <field name="tag">stock_card_report_backend</field>
+        <field name="context" eval="{'active_model': 'report.stock.card.report'}"/>
+    </record>
+
+    <record id="action_stock_card_report_pdf" model="ir.actions.report">
+        <field name="name">Stock Card PDF</field>
+        <field name="model">report.stock.card.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_card_report.report_stock_card_report_pdf</field>
+        <field name="report_file">stock_card_report.report_stock_card_report_pdf</field>
+        <field name="print_report_name"
+        >'Stock Card Report - [%s]' % (object.location_id.complete_name if object.location_id else 'All Warehouses')
+        </field>
+        <field name="paperformat_id" ref="stock_card_report.paperformat_stock_card"/>
+    </record>
+
+    <record id="action_report_stock_location_card_report_html" model="ir.actions.client">
+        <field name="name">Location Card Report</field>
+        <field name="tag">stock_card_report_backend</field>
+        <field name="context" eval="{'active_model': 'report.stock.location.card.report'}"/>
+    </record>
+
+    <record id="action_stock_location_card_report_pdf" model="ir.actions.report">
+        <field name="name">Location Card PDF</field>
+        <field name="model">report.stock.location.card.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_card_report.report_stock_location_card_report_pdf</field>
+        <field name="report_file">stock_card_report.report_stock_location_card_report_pdf</field>
+        <field name="print_report_name">'Location Card Report'</field>
+        <field name="paperformat_id" ref="stock_card_report.paperformat_stock_card"/>
+    </record>
+
+</odoo>
