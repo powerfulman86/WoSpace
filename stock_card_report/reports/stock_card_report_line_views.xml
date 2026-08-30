@@ -64,7 +64,7 @@
                 <separator/>
                 <filter name="initial" string="Initial Lines" domain="[('is_initial', '=', True)]"/>
                 <filter name="movement" string="Movement Lines" domain="[('is_initial', '=', False)]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_by_category" string="Product Category" context="{'group_by': 'product_categ_id'}"/>
                     <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
                     <filter name="group_by_date" string="Date" context="{'group_by': 'date:month'}"/>
