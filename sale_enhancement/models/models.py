@@ -1,9 +1,9 @@
 # from odoo import models, fields, api
 
 
-# class product_enhancement(models.Model):
-#     _name = 'product_enhancement.product_enhancement'
-#     _description = 'product_enhancement.product_enhancement'
+# class sale_enhancement(models.Model):
+#     _name = 'sale_enhancement.sale_enhancement'
+#     _description = 'sale_enhancement.sale_enhancement'
 
 #     name = fields.Char()
 #     value = fields.Integer()

@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="base_enhancement.list">
+      <field name="name">base_enhancement list</field>
+      <field name="model">base_enhancement.base_enhancement</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="base_enhancement.action_window">
+      <field name="name">base_enhancement window</field>
+      <field name="res_model">base_enhancement.base_enhancement</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="base_enhancement.action_server">
+      <field name="name">base_enhancement server</field>
+      <field name="model_id" ref="model_base_enhancement_base_enhancement"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="base_enhancement" id="base_enhancement.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="base_enhancement.menu_1" parent="base_enhancement.menu_root"/>
+    <menuitem name="Menu 2" id="base_enhancement.menu_2" parent="base_enhancement.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="base_enhancement.menu_1_list" parent="base_enhancement.menu_1"
+              action="base_enhancement.action_window"/>
+    <menuitem name="Server to list" id="base_enhancement" parent="base_enhancement.menu_2"
+              action="base_enhancement.action_server"/>
+-->
+  </data>
+</odoo>

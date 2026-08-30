@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_product_form_arabic_name" model="ir.ui.view">
+        <field name="name">product.product.form.arabic.name</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name'][1]" position="after">
+                <field name="arabic_name" placeholder="e.g. اسم المنتج بالعربية"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_product_list_arabic_name" model="ir.ui.view">
+        <field name="name">product.product.list.arabic.name</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="arabic_name" optional="hide"/>
+            </field>
+        </field>
+    </record>
+</odoo>
