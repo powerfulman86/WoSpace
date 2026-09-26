@@ -9,7 +9,7 @@ Long description of module's purpose
 
     'author': "CubitIt",
     'category': 'Sales/Sales',
-    'version': '19.0.1.0.0',
+    'version': '0.1',
     'installable': True,
     'application': False,
     'auto_install': False,
