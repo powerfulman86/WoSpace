@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--subcontractors-->
+        <record id="action_subcontractor_vendor" model="ir.actions.act_window">
+            <field name="name">Subcontractors</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[]</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{'search_default_supplier': 1,'default_customer': 0,'default_supplier': 1}</field>
+            <field name="filter" eval="True"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to add a contact in your address book.
+                </p>
+                <p>
+                    Odoo helps you easily track all activities related to
+                    a supplier: discussions, history of purchases,
+                    documents, etc.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_procurement_management_supplier_name"
+                  name="Sub-Contractors"
+                  parent="menu_sub_contracting"
+                  action="action_subcontractor_vendor" sequence="1"/>
+
+
+        <!--sub-contracts-->
+        <record id="sale_sub_contracting_search" model="ir.ui.view">
+            <field name="name">sale.sub.contracting.search</field>
+            <field name="model">contracting.order.sub</field>
+            <field name="arch" type="xml">
+                <search string="Sub-Contract">
+                    <field name="internal_reference" string="Sub-Contracts"
+                           filter_domain="[('internal_reference', 'ilike', self)]"/>
+                    <field name="partner_id" operator="child_of"/>
+                    <field name="user_id"/>
+                    <field name="team_id"/>
+                    <group>
+                        <filter string="Salesperson" name="sales_person" domain="[]" context="{'group_by':'user_id'}"/>
+                        <filter string="Sales Team" name="sales_team" domain="[]" context="{'group_by':'team_id'}"/>
+                        <filter string="Customer" name="customer" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="Contract" name="contract" domain="[]"
+                                context="{'group_by':'sale_contract_id'}"/>
+                        <filter string="state" name="state" domain="[]" context="{'group_by':'state'}"/>
+                        <filter string="Start Date" name="start_month" domain="[]"
+                                context="{'group_by' : 'start_date'}"/>
+                        <filter string="End Date" name="complete_date" domain="[]"
+                                context="{'group_by' : 'complete_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="sale_sub_contracting_form" model="ir.ui.view">
+            <field name="name">sale.sub.contracting.form</field>
+            <field name="model">contracting.order.sub</field>
+            <field name="arch" type="xml">
+                <form string="Sub-Contracting">
+                    <header>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_purchase_orders"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-pencil-square-o">
+                                <field string="Purchases" name="purchase_count" widget="statinfo"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1 class="flex-fill d-flex flex-row" invisible="id == False">
+                                <field name="display_name" class="text-truncate"/>
+                            </h1>
+                            <h1 invisible="id != False">
+                                <field name="internal_reference" readonly="1"/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group string="Base">
+                                <field name="partner_id"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="user_id"/>
+                                <field name="team_id"/>
+                            </group>
+                            <group string="Date">
+                                <field name="contract_date"/>
+                                <field name="start_date"/>
+                                <field name="complete_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Main Contract">
+                                <field name="sale_contract_id" readonly="1"/>
+                                <field name="sale_contract_partner_id" readonly="1"/>
+                                <field name="project_id" readonly="1"/>
+                                <field name="project_task_id" readonly="1"/>
+                            </group>
+                            <group string="Amounts">
+                                <field name="contract_amount"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="contract_actual_amount"/>
+                                <field name="amount_invoiced" readonly="1"/>
+                                <field name="product_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Tasks">
+                                <field name="subcontract_task" widget="section_and_note_one2many" mode="list"
+                                       nolabel="1">
+                                    <list string="Tasks" editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="task_date" readonly="task_created == True"/>
+                                        <field name="description" readonly="task_created == True"/>
+                                        <field name="project_task_id"/>
+                                        <field name="task_created" invisible="1"/>
+                                        <field name="purchase_order_id" readonly="1"/>
+                                        <field name="purchase_created" invisible="1"/>
+                                        <field name="price_unit" readonly="task_created == True"/>
+                                        <field name="amount_invoiced"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <button name="action_create_subtask" title="Approve Sub-Task"
+                                                icon="fa-cloud-download" type="object"
+                                                invisible="task_created == True"/>
+                                        <button name="create_purchase_order" title="Create PO"
+                                                icon="fa-shopping-cart" type="object"
+                                                invisible="purchase_created == True or task_created == False"/>
+                                    </list>
+                                </field>
+                                <group name="note_group" col="6">
+                                    <group colspan="4">
+                                        <field name="note" nolabel="1" placeholder="Terms and conditions..."/>
+                                    </group>
+                                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sub-contract_total">
+                                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                            <label for="contract_actual_amount"/>
+                                        </div>
+                                        <field name="contract_actual_amount" nolabel="1"
+                                               class="oe_subtotal_footer_separator"
+                                               widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    </group>
+                                    <div class="oe_clear"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_sub_contracting_tree" model="ir.ui.view">
+            <field name="name">sale.sub.contracting.tree</field>
+            <field name="model">contracting.order.sub</field>
+            <field name="arch" type="xml">
+                <list string="Sub-Contracting" create="false">
+                    <field name="internal_reference" readonly="1"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="contract_date" readonly="1"/>
+                    <field name="start_date" readonly="1"/>
+                    <field name="complete_date" readonly="1"/>
+                    <field name="sale_contract_id" readonly="1"/>
+                    <field name="state"/>
+                    <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_subcontractor_task" model="ir.actions.act_window">
+            <field name="name">Sub-Contracting</field>
+            <field name="res_model">contracting.order.sub</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="context">{"search_default_my_contracts":1}</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new Sale Sub-Contract
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_projects_subcontract"
+                  name="Sub-Contracting"
+                  parent="menu_sub_contracting" sequence="2"
+                  action="action_subcontractor_task"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_contract_order_pivot" model="ir.ui.view">
+         <field name="name">contracting.order.report.pivot</field>
+         <field name="model">contracting.order.report</field>
+         <field name="arch" type="xml">
+             <pivot string="Contract Order Analysis" sample="1">
+                 <field name="team_id" type="col"/>
+                 <field name="contract_date" interval="month" type="row"/>
+                 <field name="contract_amount" type="measure"/>
+             </pivot>
+         </field>
+    </record>
+
+    <record id="view_contract_order_graph" model="ir.ui.view">
+        <field name="name">contracting.order.report.graph</field>
+        <field name="model">contracting.order.report</field>
+        <field name="arch" type="xml">
+            <graph string="Contract Order Analysis" type="line" sample="1">
+                <field name="contract_date" interval="day"/>
+                <field name="contract_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_contract_order_tree" model="ir.ui.view">
+        <field name="name">contracting.order.report.tree</field>
+        <field name="model">contracting.order.report</field>
+        <field name="arch" type="xml">
+            <list string="Contract Order Analysis">
+                <field name="contract_date" widget="date"/>
+                <field name="contract_id" optional="show"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                <field name="team_id" optional="show"/>
+                <field name="company_id" optional="show" groups="base.group_multi_company"/>
+                <field name="advisor_id"/>
+                <field name="contractor_id"/>
+                <field name="project_manager_id"/>
+                <field name="project_engineer_id"/>
+                <field name="partner_id"/>
+                <field name="stage_id" optional="hide"/>
+                <field name="template_id"/>
+                <field name="contract_amount" optional="hide" sum="Sum of Contract Amount"/>
+                <field name="current_expense" optional="show" sum="Sum of Current Expense"/>
+                <field name="current_income" optional="show" sum="Sum of Current Income"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_contract_order_search" model="ir.ui.view">
+        <field name="name">contracting.order.report.search</field>
+        <field name="model">contracting.order.report</field>
+        <field name="arch" type="xml">
+            <search string="Contracting Orders Analysis">
+                <field name="contract_date"/>
+                <filter string="Date" name="year" invisible="1" date="contract_date" default_period="year"/>
+                <filter name="filter_date" date="contract_date" default_period="month"/>
+                <filter name="filter_order_date" invisible="1" string="Order Date: Last 365 Days"
+                        domain="[('contract_date', '&gt;=', (datetime.datetime.combine(context_today() + relativedelta(days=-365), datetime.time(0,0,0))).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <separator/>
+                <field name="user_id"/>
+                <field name="team_id"/>
+                <field name="advisor_id"/>
+                <field name="contractor_id"/>
+                <field name="project_manager_id"/>
+                <field name="project_engineer_id"/>
+                <field name="partner_id"/>
+                <field name="stage_id"/>
+                <field name="template_id"/>
+                <group>
+                    <filter string="Salesperson" name="User" context="{'group_by':'user_id'}"/>
+                    <filter string="Sales Team" name="sales_channel" context="{'group_by':'team_id'}"/>
+                    <filter string="Customer" name="Customer" context="{'group_by':'partner_id'}"/>
+                    <filter string="Stage" name="stage_id" context="{'group_by':'stage_id'}"/>
+                    <filter string="Template" name="template_id" context="{'group_by':'template_id'}"/>
+                    <filter string="Company" name="company" groups="base.group_multi_company"
+                            context="{'group_by':'company_id'}"/>
+                    <filter string="Health" name="health" domain="[]" context="{'group_by':'health'}"/>
+                    <separator/>
+                    <filter string="Advisor" name="advisor_id" context="{'group_by':'advisor_id'}"/>
+                    <filter string="Contractor" name="contractor_id" context="{'group_by':'contractor_id'}"/>
+                    <filter string="Manager" name="project_manager_id" context="{'group_by':'project_manager_id'}"/>
+                    <filter string="Engineer" name="project_engineer_id" context="{'group_by':'project_engineer_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_contract_orders_report" model="ir.actions.act_window">
+        <field name="name">Contracting Orders Analysis</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">contracting.order.report</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="search_view_id" ref="view_contract_order_search"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_contracting_reporting_orders"
+              name="Contracting Orders"
+              action="action_contract_orders_report"
+              parent="menu_contracting_reporting"
+              sequence="1"/>
+</odoo>

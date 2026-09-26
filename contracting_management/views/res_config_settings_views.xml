@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.contracting</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="52"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Contracting"
+                     string="Contracting"
+                     name="contracting_management"
+                     groups="contracting_management.sale_contracting_manager">
+                    <block title="Contracting Products" name="contracting_products_setting_container">
+                        <setting string="Prepaid Product"
+                                 help="Product used for prepaid amounts.">
+                            <field name="contracting_prepaid_product_id"/>
+                        </setting>
+                        <setting string="Retention Product"
+                                 help="Product used for retention amounts.">
+                            <field name="contracting_retention_product_id"/>
+                        </setting>
+                    </block>
+                    <block title="Task Automated Journal Entry"
+                           name="contracting_task_accounting_setting_container">
+                        <setting string="Used Journal"
+                                 help="Journal used for task automated journal entries.">
+                            <field name="task_journal_id"
+                                   domain="[('type', '=', 'general')]"
+                                   options="{'no_create': True}"/>
+                        </setting>
+                        <setting string="Default Credit Account"
+                                 help="Default credit account applied to task transactions.">
+                            <field name="account_task_credit_id"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_contracting_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">main</field>
+        <field name="context">{'module': 'contracting_management', 'bin_size': False}</field>
+    </record>
+
+    <menuitem id="menu_contracting_general_settings"
+              name="Settings"
+              parent="menu_contracting_management_configuration"
+              sequence="0"
+              action="action_contracting_config_settings"
+              groups="base.group_system"/>
+</odoo>

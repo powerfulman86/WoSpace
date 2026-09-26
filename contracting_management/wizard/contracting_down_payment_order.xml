@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_contracting_down_payment_order" model="ir.ui.view">
+            <field name="name">Contracting Down-Payment Order</field>
+            <field name="model">contracting.down.payment.order</field>
+            <field name="arch" type="xml">
+                <form string="Down-Payment Order">
+                    <group>
+                        <group>
+                            <field name="internal_reference"/>
+                            <field name="partner_id"/>
+                            <field name="contract_date"/>
+                        </group>
+                        <group>
+                            <field name="contract_amount"/>
+                            <field name="downpayment_amount"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="create_down_payment_order" string="Create Order" type="object"
+                                class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_contracting_down_payment_order" model="ir.actions.act_window">
+            <field name="name">Contracting Down-Payment Order</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">contracting.down.payment.order</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_contracting_down_payment_order"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

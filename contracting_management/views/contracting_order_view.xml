@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Sale Contracting-->
+    <record id="contracting_order_search" model="ir.ui.view">
+        <field name="name">sale.contracting.search</field>
+        <field name="model">contracting.order</field>
+        <field name="arch" type="xml">
+            <search string="Contracting">
+                <field name="internal_reference" string="Contracts"
+                       filter_domain="['|',('internal_reference', 'ilike', self),('name', 'ilike', self)]"/>
+                <field name="partner_id" operator="child_of"/>
+                <field name="user_id"/>
+                <field name="team_id"/>
+                <field name="template_id"/>
+                <filter name="my_contracts" string="My Contracts" domain="[('user_id','=',uid)]"/>
+                <separator/>
+                <filter name="normal" string="Normal Health" domain="[('health', '=', 'normal')]"/>
+                <filter name="good" string="Good Health" domain="[('health', '=', 'done')]"/>
+                <filter name="bad" string="Bad Health" domain="[('health', '=', 'bad')]"/>
+                <group>
+                    <filter string="Salesperson" name="sales_person" domain="[]" context="{'group_by':'user_id'}"/>
+                    <filter string="Sales Team" name="sales_team" domain="[]" context="{'group_by':'team_id'}"/>
+                    <filter string="Customer" name="customer" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Template" name="template" domain="[]" context="{'group_by':'template_id'}"/>
+                    <filter string="Stage" name="stage" domain="[]" context="{'group_by':'stage_id'}"/>
+                    <filter string="Health" name="health" domain="[]" context="{'group_by':'health'}"/>
+                    <separator/>
+                    <filter string="Start Date" name="start_month" domain="[]"
+                            context="{'group_by' : 'start_date'}"/>
+                    <filter string="End Date" name="end_month" domain="[]"
+                            context="{'group_by' : 'complete_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="contracting_order_form" model="ir.ui.view">
+        <field name="name">sale.contracting.form</field>
+        <field name="model">contracting.order</field>
+        <field name="active" eval="True"/>
+        <field name="arch" type="xml">
+            <form string="Contract">
+                <header>
+                    <button string="Down Payment" type="action"
+                            name="%(action_contracting_down_payment_order)d"
+                            class="oe_link pt-0 oe_inline"
+                            invisible="stage_sequence != 2"/>
+                    <button name="create_clearance"
+                            type="object" string="Create Clearance"
+                            invisible="stage_sequence != 3 and amount_to_invoice == 0 and is_clearance == False"
+                            class="btn-primary"/>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_variations"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-chain"
+                                invisible="variation_count &lt;= 0">
+                            <field string="Variations" name="variation_count" widget="statinfo"/>
+                        </button>
+                        <button name="action_view_purchase_order_line"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-pencil-square-o"
+                                invisible="purchase_order_line_count &lt;= 0">
+                            <field string="Purchases" name="purchase_order_line_count" widget="statinfo"/>
+                        </button>
+                        <button name="action_view_hr_timesheet_line"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                invisible="timesheet_line_count &lt;= 0">
+                            <field string="Timesheet" name="timesheet_line_count" widget="statinfo"/>
+                        </button>
+                        <button name="action_view_clearance_orders"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-ticket"
+                                invisible="clearance_count &lt;= 0">
+                            <field name="clearance_count" widget="statinfo" string="Clearances"/>
+                        </button>
+                        <button name="action_view_sale_orders"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-credit-card"
+                                invisible="sales_orders_count &lt;= 0">
+                            <field name="sales_orders_count" widget="statinfo" string="Sales"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1 class="flex-fill d-flex flex-row" invisible="id == False">
+                            <field name="starred" widget="boolean_favorite" class="me-3" nolabel="1"/>
+                            <field name="display_name" class="text-truncate"/>
+                            <field name="kanban_state" widget="state_selection"/>
+                        </h1>
+                        <h1 invisible="id != False">
+                            <field name="internal_reference" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Profiling">
+                            <field name="contract_reference" readonly="stage_sequence != 1"/>
+                            <field name="partner_id" readonly="stage_sequence != 1"/>
+                            <field name="name" readonly="stage_sequence != 1"/>
+                            <field name="template_id" readonly="stage_sequence != 1"/>
+                        </group>
+                        <group string="Supervision">
+                            <field name="advisor_id" readonly="stage_sequence != 1"/>
+                            <field name="contractor_id" readonly="stage_sequence != 1"/>
+                            <field name="project_manager_id" readonly="stage_sequence != 1"/>
+                            <field name="project_engineer_id" readonly="stage_sequence != 1"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="contract_date" readonly="stage_sequence != 1"/>
+                            <field name="complete_date"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Base">
+                            <field name="advance_payment_rate" readonly="stage_sequence != 1"/>
+                            <field name="retention_rate" readonly="stage_sequence != 1"/>
+                            <field name="stage_sequence" invisible="1"/>
+                            <field name="contract_invoice_status" invisible="1"/>
+                            <field name="is_clearance" invisible="1"/>
+                            <field name="account_analytic_id"/>
+                            <field name="project_id"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Financial Details" name="contract_financial_details">
+                            <h2 style="margin-top: 10px !important;background-color: #e9ecef;padding-left: 8px;">
+                                Over-all Details
+                            </h2>
+                            <group>
+                                <group string="Amount">
+                                    <field name="contract_amount"
+                                           readonly="stage_sequence != 1"/>
+                                    <field name="variation_amount"/>
+                                    <field name="contract_total_amount"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Estimates">
+                                    <field name="labour_estimate_cost" string="Labour Estimate"/>
+                                    <field name="material_estimate_cost" string="Material Estimate"/>
+                                    <field name="subcontract_estimate_cost" string="Subcontract Estimate"/>
+                                    <field name="overhead_estimate_cost" string="Over-head Estimate"/>
+                                    <field name="cost_expected"/>
+                                    <div class="o_row o_td_label">
+                                        <label for="margin_expected"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="margin_expected"/>
+                                        <label for="margin_expected_percentage" string="%"/>
+                                        <field name="margin_expected_percentage"/>
+                                    </div>
+                                </group>
+
+                                <group string="Actual">
+                                    <div class="o_row o_td_label">
+                                        <label for="current_expense"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="current_expense"/>
+                                        <label for="critical_rate" string="%"/>
+                                        <field name="critical_rate"/>
+                                    </div>
+
+                                    <div class="o_row o_td_label">
+                                        <label for="current_income"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="current_income"/>
+                                        <label for="current_income_percentage" string="%"/>
+                                        <field name="current_income_percentage"/>
+                                    </div>
+
+                                    <field name="amount_to_invoice"/>
+                                    <field name="amount_to_invoice_expected"/>
+                                    <field name="amount_invoiced"/>
+                                    <div class="o_row o_td_label">
+                                        <label for="margin_actual"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="margin_actual"/>
+                                        <label for="margin_actual_percentage" string="%"/>
+                                        <field name="margin_actual_percentage"/>
+                                    </div>
+                                    <!--                                        <field name="contract_progress" widget="progressbar"/>-->
+                                </group>
+
+
+                            </group>
+                            <h2 style="margin-top: 10px !important;background-color: #e9ecef;padding-left: 8px;">
+                                DownPayment / Retention
+                            </h2>
+                            <group>
+                                <group string="Down Payment">
+                                    <field name="down_payment"/>
+                                    <field name="consumed_down_payment"/>
+                                    <field name="remain_down_payment"/>
+                                    <field name="down_payment_order"/>
+                                </group>
+
+                                <group string="Retention">
+                                    <field name="retention_amount"/>
+                                    <field name="retention_balance"/>
+                                    <field name="retention_remain"/>
+                                </group>
+                            </group>
+
+                            <h2 style="margin-top: 10px !important;background-color: #e9ecef;padding-left: 8px;">
+                                Details
+                            </h2>
+                            <group>
+                                <group string="Material">
+                                    <field name="material_estimate_cost" string="Estimate Cost" widget="monetary"/>
+                                    <field name="material_current_cost" string="Current Cost" widget="monetary"/>
+                                    <field name="material_amount_to_invoice" string="To Invoice" widget="monetary"/>
+                                    <field name="material_amount_invoiced" string="Invoiced" widget="monetary"/>
+                                    <field name="material_progress" string="Progress" widget="progressbar"/>
+                                </group>
+                                <group string="Internal Labour">
+                                    <div class="o_row o_td_label">
+                                        <label for="planned_hours_cost"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="planned_hours_cost"/>
+                                        <label for="planned_hours" string="Count"/>
+                                        <field name="planned_hours" widget="float_time"/>
+                                    </div>
+
+                                    <div class="o_row o_td_label">
+                                        <label for="effective_hours_cost"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="effective_hours_cost"/>
+                                        <label for="effective_hours" string="Count"/>
+                                        <field name="effective_hours" widget="float_time"/>
+                                    </div>
+
+                                    <div class="o_row o_td_label">
+                                        <label for="effective_hours_cost"/>
+                                    </div>
+                                    <div class="o_row">
+                                        <field name="effective_hours_cost"/>
+                                        <label for="remaining_hours" string="Count"/>
+                                        <field name="remaining_hours" widget="float_time"/>
+                                    </div>
+
+                                    <field name="labour_progress" widget="progressbar"/>
+                                </group>
+                                <group string="Sub-Contract">
+                                    <field name="subcontract_estimate_cost" string="Estimate Cost"
+                                           widget="monetary"/>
+                                    <field name="subcontract_current_cost" string="Current Cost" widget="monetary"/>
+                                    <field name="subcontract_amount_to_invoice" string="To Invoice"
+                                           widget="monetary"/>
+                                    <field name="subcontract_amount_invoiced" string="Invoiced" widget="monetary"/>
+                                    <field name="subcontract_progress" string="Progress" widget="progressbar"/>
+                                </group>
+                                <group string="Over-Head">
+                                    <field name="overhead_estimate_cost" string="Estimate Cost"
+                                           widget="monetary"/>
+                                    <field name="overhead_current_cost" string="Current Cost" widget="monetary"/>
+                                    <field name="overhead_amount_to_invoice" string="To Invoice"
+                                           widget="monetary"/>
+                                    <field name="overhead_amount_invoiced" string="Invoiced" widget="monetary"/>
+                                    <field name="overhead_progress" string="Progress" widget="progressbar"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Material">
+                            <field name="contract_material" widget="section_and_note_one2many"
+                                   context="{'default_line_type':'material'}" mode="list" nolabel="1"
+                                   readonly="stage_sequence != 2">
+                                <list string="Contract Material" editable="bottom"
+                                      decoration-success="invoice_status == 'invoiced'"
+                                      decoration-info="invoice_status == 'to_invoice'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id" optional="show"/>
+                                    <field name="description" optional="show"/>
+                                    <field name="product_qty" optional="show"/>
+                                    <field name="price_unit" optional="show"/>
+                                    <field name="price_total" optional="show"/>
+                                    <field name="quantity_billed" optional="show"/>
+                                    <field name="amount_billed" optional="show"/>
+                                    <field name="qty_to_invoice" optional="show"/>
+                                    <field name="amount_to_invoice" optional="show"/>
+                                    <field name="quantity_invoiced" optional="show"/>
+                                    <field name="amount_invoiced" optional="show"/>
+                                    <field name="uom_id" invisible="1"/>
+                                    <field name="line_type" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="invoice_status" optional="show"/>
+                                </list>
+                            </field>
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" name="material_cost">
+                                    <field name="material_estimate_cost" widget="monetary"
+                                           class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Internal Labour">
+                            <field name="contract_labour" widget="section_and_note_one2many"
+                                   context="{'default_line_type':'labour'}" mode="list" nolabel="1"
+                                   readonly="stage_sequence != 2">
+                                <list string="Contract Labour" editable="bottom"
+                                      decoration-success="invoice_status == 'invoiced'"
+                                      decoration-info="invoice_status == 'to_invoice'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="description"/>
+                                    <field name="project_task_id" optional="show"/>
+                                    <field name="planned_hours"/>
+                                    <field name="quantity_billed" string="Hours Spent" optional="show"/>
+                                    <field name="remaining_hours" optional="show"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_total"/>
+                                    <field name="qty_to_invoice" optional="show"/>
+                                    <field name="amount_to_invoice" optional="show"/>
+                                    <field name="quantity_invoiced" optional="show"/>
+                                    <field name="amount_invoiced" optional="show"/>
+                                    <field name="line_type" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="invoice_status" optional="show"/>
+                                </list>
+                            </field>
+
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" name="project_hours">
+                                    <field name="planned_hours" widget="float_time"/>
+                                    <field name="effective_hours" widget="float_time"/>
+                                    <field name="remaining_hours" widget="float_time"
+                                           class="oe_subtotal_footer_separator"/>
+                                    <field name="labour_estimate_cost" widget="monetary"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Sub-Contract">
+                            <field name="contract_subcontract" widget="section_and_note_one2many"
+                                   context="{'default_line_type':'subcontract'}" mode="list,form" nolabel="1"
+                                   readonly="stage_sequence != 2">
+                                <list string="Contract Labour" editable="bottom"
+                                      decoration-success="invoice_status == 'invoiced'"
+                                      decoration-info="invoice_status == 'to_invoice'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="description"/>
+                                    <field name="supplier_id" required="1"/>
+                                    <field name="sale_subcontract_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_total"/>
+                                    <field name="amount_billed"/>
+                                    <field name="qty_to_invoice" optional="show"/>
+                                    <field name="amount_to_invoice"/>
+                                    <field name="amount_invoiced"/>
+                                    <field name="line_type" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="invoice_status" optional="show"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="company_id" invisible="1"/>
+                                            <field name="sale_subcontract_id"/>
+                                            <field name="supplier_id"/>
+                                        </group>
+                                        <group>
+                                            <field name="product_id"/>
+                                            <field name="description"/>
+                                            <field name="price_unit"/>
+                                            <field name="price_total"/>
+                                        </group>
+                                        <group>
+                                            <field name="amount_billed"/>
+                                            <field name="qty_to_invoice"/>
+                                            <field name="amount_to_invoice"/>
+                                            <field name="amount_invoiced"/>
+                                            <field name="invoice_status"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" name="subcontract_cost">
+                                    <field name="subcontract_estimate_cost" widget="monetary"
+                                           class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Over-Head">
+                            <field name="contract_overhead" widget="section_and_note_one2many"
+                                   context="{'default_line_type':'overhead'}" mode="list,form" nolabel="1"
+                                   readonly="stage_sequence != 2">
+                                <list string="Contract Over-Head" editable="bottom"
+                                      decoration-success="invoice_status == 'invoiced'"
+                                      decoration-info="invoice_status == 'to_invoice'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="description"/>
+                                    <field name="supplier_id" string="Supplier" required="1"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_total"/>
+                                    <field name="amount_billed"/>
+                                    <field name="qty_to_invoice" optional="show"/>
+                                    <field name="amount_to_invoice"/>
+                                    <field name="amount_invoiced"/>
+                                    <field name="line_type" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="invoice_status" optional="show"/>
+                                    <field name="purchase_created" invisible="1"/>
+                                    <field name="line_approved" invisible="1"/>
+                                    <button name="action_approve" title="Approve"
+                                            icon="fa-cloud-download" type="object"
+                                            invisible="line_approved == True"/>
+                                    <button name="create_purchase_order" title="Create PO"
+                                            icon="fa-shopping-cart" type="object"
+                                            invisible="purchase_created == True or line_approved == False"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="company_id" invisible="1"/>
+                                            <field name="supplier_id" string="Supplier" required="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="product_id"/>
+                                            <field name="description"/>
+                                            <field name="price_unit"/>
+                                            <field name="price_total"/>
+                                        </group>
+                                        <group>
+                                            <field name="amount_billed"/>
+                                            <field name="qty_to_invoice"/>
+                                            <field name="amount_to_invoice"/>
+                                            <field name="amount_invoiced"/>
+                                        </group>
+                                        <group>
+                                            <field name="invoice_status"/>
+                                            <field name="purchase_created" invisible="1"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" name="overhead_cost">
+                                    <field name="overhead_estimate_cost" widget="monetary"
+                                           class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Other Info" name="other_information">
+                            <group>
+                                <group>
+                                    <field name="user_id" readonly="stage_sequence != 1"/>
+                                    <field name="team_id" readonly="stage_sequence != 1"/>
+                                </group>
+                            </group>
+
+                            <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                <group colspan="4">
+                                    <field colspan="2" name="description" nolabel="1" placeholder="Contract Notes..."/>
+                                </group>
+                                <div class="clearfix"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="contracting_order_kanban" model="ir.ui.view">
+        <field name="name">sale.contracting.kanban</field>
+        <field name="model">contracting.order</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_group_by="stage_id" sample="1">
+                <field name="partner_id"/>
+                <field name="starred"/>
+                <field name="stage_id" options="{'group_by_tooltip': {'description': 'Description'}}"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div>
+                                    <strong>
+                                        <div class="float-right">
+                                            <field name="internal_reference"/>
+                                        </div>
+                                        <field name="partner_id"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="name"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="starred" widget="boolean_favorite" nolabel="1" force_save="1"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <span class="float-right">
+                                        <field name="contract_date"/>
+                                    </span>
+                                    <span class="float-right mr4">
+                                        <field name="kanban_state" widget="state_selection"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="contracting_order_tree" model="ir.ui.view">
+        <field name="name">sale.contracting.tree</field>
+        <field name="model">contracting.order</field>
+        <field name="arch" type="xml">
+            <list string="Contracts">
+                <field name="internal_reference" readonly="1"/>
+                <field name="contract_reference" readonly="1"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="name" readonly="1"/>
+                <field name="contract_date" readonly="1"/>
+                <field name="template_id" readonly="1"/>
+                <field name="complete_date" readonly="1"/>
+                <field name="stage_id"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="contracting_order_action" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">contracting.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{"search_default_my_contracts":1}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sale Contract
+            </p>
+        </field>
+    </record>
+
+    <!-- Explicit view bindings keep the correct form available even if a previous
+         database version had the view disabled or another module changed priorities. -->
+    <record id="contracting_order_action_kanban_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="contracting_order_kanban"/>
+        <field name="act_window_id" ref="contracting_order_action"/>
+    </record>
+
+    <record id="contracting_order_action_list_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="20"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="contracting_order_tree"/>
+        <field name="act_window_id" ref="contracting_order_action"/>
+    </record>
+
+    <record id="contracting_order_action_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="30"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="contracting_order_form"/>
+        <field name="act_window_id" ref="contracting_order_action"/>
+    </record>
+
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="menu_contract_management_view"
+              name="Contracts"
+              parent="menu_contracting_management"
+              action="contracting_order_action"
+              sequence="1"/>
+
+</odoo>

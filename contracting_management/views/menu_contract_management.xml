@@ -1,0 +1,39 @@
+<odoo>
+    <record id="action_contracting_projects" model="ir.actions.act_window">
+        <field name="name">Contracting Projects</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_contracting_project', '=', True)]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <!--Contracting Main Menu -->
+    <menuitem id="menu_contracting_main"
+              name="Contracting"
+              web_icon="contracting_management,static/description/icon.png"
+              groups="contracting_management.sale_contracting_user">
+
+        <!--Contracting Menu -->
+        <menuitem id="menu_contracting_management"
+                  name="Contracting"
+                  sequence="1"/>
+
+        <menuitem id="menu_projects_contracting"
+                  name="Projects"
+                  sequence="2"
+                  action="action_contracting_projects"/>
+
+        <menuitem id="menu_sub_contracting"
+                  name="Sub-Contracting"
+                  sequence="3"/>
+
+        <menuitem id="menu_contracting_reporting"
+                  name="Reporting"
+                  sequence="4"/>
+
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="menu_contracting_management_configuration"
+                  name="Configuration"
+                  sequence="99"/>
+    </menuitem>
+</odoo>

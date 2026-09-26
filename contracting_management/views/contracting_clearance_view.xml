@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="contracting_clearance_view_search" model="ir.ui.view">
+        <field name="name">contracting.clearance.search</field>
+        <field name="model">contracting.clearance</field>
+        <field name="arch" type="xml">
+            <search string="Clearances">
+                <field name="internal_reference" string="Clearances"
+                       filter_domain="[('internal_reference', 'ilike', self)]"/>
+                <field name="partner_id" operator="child_of"/>
+                <field name="contract_id"/>
+                <filter name="locked" string="Locked" domain="[('state','=','done')]"/>
+                <filter name="invoiced" string="Invoiced" domain="[('state','=','invoiced')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state','=','cancel')]"/>
+                <group>
+                    <filter string="Customer" name="customer" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Contract" name="contract_id" domain="[]" context="{'group_by':'contract_id'}"/>
+                    <filter string="State" name="state" domain="[]" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="contracting_clearance_view_form" model="ir.ui.view">
+        <field name="name">contracting.clearance.form</field>
+        <field name="model">contracting.clearance</field>
+        <field name="arch" type="xml">
+            <form string="Contract Clearance" create="false" delete="false">
+                <header>
+                    <button string="Invoice" type="object"
+                            name="prepare_contract_payment_order"
+                            class="oe_link pt-0 oe_inline"
+                            invisible="state != 'done' or sale_order == True"/>
+                    <button name="action_done" invisible="state not in ['draft']" type="object" string="Lock" class="btn-primary"/>
+                    <button name="action_cancel" invisible="state not in ['draft']" type="object" string="Cancel" class="btn-primary"/>
+                    <button name="action_cancel_invoiced" invisible="state not in ['done']" type="object" string="Cancel"
+                            class="btn-primary"/>
+                    <button name="button_unlock" type="object" string="Unlock" invisible="state not in ['invoiced']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_created_order"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-credit-card"
+                                invisible="sale_order &lt;= True">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Sales Order</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="internal_reference" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Base Data">
+                            <field name="clearance_date"/>
+                            <field name="contract_id"/>
+                            <field name="partner_id"/>
+                            <field name="sale_order" invisible="1"/>
+                        </group>
+
+                        <group string="Amounts">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_to_invoice"/>
+                            <field name="amount_to_invoice_expected"/>
+                            <field name="amount_to_invoice_actual"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Advance Payment">
+                            <field name="amount_deduct_from_ap"/>
+                            <field name="amount_deduct_from_ap_min"/>
+                            <field name="amount_deduct_from_ap_remain"/>
+                        </group>
+                        <group string="Retention">
+                            <field name="retention_amount"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lines">
+                            <field name="order_line" widget="section_and_note_one2many"
+                                   mode="list" nolabel="1">
+                                <list string="Contract Material" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="contract_line_id"/>
+                                    <field name="line_type"/>
+                                    <field name="qty_to_invoice"/>
+                                    <field name="amount_to_invoice"/>
+                                    <field name="amount_actual"/>
+                                </list>
+                            </field>
+                            <group>
+                                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                                    <field name="clearance_total_amount" widget='monetary'
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_to_invoice" widget='monetary'
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_to_invoice_expected" widget='monetary'
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Other Info" name="other_information">
+                            <group colspan="4">
+                                <field name="description" nolabel="1" placeholder="Clearance Notes..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="contracting_clearance_view_tree" model="ir.ui.view">
+        <field name="name">contracting.clearance.tree</field>
+        <field name="model">contracting.clearance</field>
+        <field name="arch" type="xml">
+            <list string="Contract Clearance Order" create="false" delete="false"
+                  decoration-info="state == 'draft'"
+                  decoration-bf="state == 'done'"
+                  decoration-success="state == 'invoiced'"
+                  decoration-muted="state=='cancel'">
+                <field name="internal_reference" readonly="1"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="contract_id" readonly="1"/>
+                <field name="clearance_date" readonly="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="create_uid" optional="show"/>
+                <field name="create_date" optional="show"/>
+                <field name="write_uid" optional="show"/>
+                <field name="write_date" optional="show"/>
+                <field name="amount_to_invoice_expected" sum="Sum of Amount To Invoice"/>
+                <field name="state"/>
+                <field name="invoice_status"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_contracting_clearance" model="ir.actions.act_window">
+        <field name="name">Contracts Clearance Order</field>
+        <field name="res_model">contracting.clearance</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Contract Clearance Order
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_contracting_clearance"
+              name="Clearance"
+              parent="menu_contracting_management"
+              action="action_contracting_clearance"
+              sequence="3"/>
+</odoo>

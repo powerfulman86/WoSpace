@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Sale contract template-->
+        <record id="sale_contracting_action_filtered" model="ir.actions.act_window">
+            <field name="name">Contracts</field>
+            <field name="res_model">contracting.order</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="context">{
+                'search_default_template_id': [active_id],
+                'default_template_id': active_id,
+                }
+            </field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new Contracting
+                </p>
+                <p>
+                    Use subscriptions to follow tasks, issues, timesheets or invoicing based on
+                    work done, expenses and/or sales orders. Odoo will automatically manage
+                    the alerts for the renewal of the subscriptions to the right salesperson.
+                </p>
+            </field>
+        </record>
+
+        <record id="sale_contracting_template_search" model="ir.ui.view">
+            <field name="name">sale.contracting.template.search</field>
+            <field name="model">contracting.order.template</field>
+            <field name="arch" type="xml">
+                <search string="Contracting Templates">
+                    <field name="name" filter_domain="['|', ('name','ilike',self),('code','ilike',self)]"
+                           string="Template"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="sale_contracting_template_form" model="ir.ui.view">
+            <field name="name">sale.contracting.template.form</field>
+            <field name="model">contracting.order.template</field>
+            <field name="arch" type="xml">
+                <form string="Subscription">
+                    <sheet string="Subscription">
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button"
+                                    icon="fa-book"
+                                    name="%(contracting_order_action)d"
+                                    context="{'search_default_template_id': [id], 'default_template_id': id}"
+                                    type="action">
+                                <field name="contracting_count" widget="statinfo" string="Contracts"/>
+                            </button>
+
+                        </div>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                                invisible="active == True"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="e.g. supplier Contracts"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="active" invisible="1"/>
+                                <field name="code"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="company_id" options="{'no_create': True}"
+                                       groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="analytic_plan_id"/>
+                                <field name="template_sequence_id"/>
+                                <field name="product_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lines">
+                                <field name="template_lines" widget="section_and_note_one2many" mode="list" nolabel="1">
+                                    <list string="Contract Labour" editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="product_id"/>
+                                        <field name="description"/>
+                                        <field name="line_type"/>
+                                        <field name="company_id" invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page name="description" string="Terms and Conditions">
+                                <field name="description" placeholder="Terms and Conditions"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_contracting_template_list" model="ir.ui.view">
+            <field name="name">sale.contracting.template.list</field>
+            <field name="model">contracting.order.template</field>
+            <field name="arch" type="xml">
+                <list string="Contracting Templates">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show" readonly="1"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="sale_contracting_template_kanban" model="ir.ui.view">
+            <field name="name">sale.contracting.template.kanban</field>
+            <field name="model">contracting.order.template</field>
+            <field name="arch" type="xml">
+                <kanban highlight_color="color">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="color"/>
+                    <field name="contracting_count"/>
+                    <templates>
+                        <t t-name="menu" t-if="!selection_mode">
+                            <a type="edit" class="dropdown-item">Settings</a>
+                            <a name="%(sale_contracting_action_filtered)d"
+                               type="action"
+                               class="dropdown-item">Contracts</a>
+                            <div role="separator" class="dropdown-divider"/>
+                            <field name="color" widget="kanban_color_picker"/>
+                        </t>
+                        <t t-name="card">
+                            <main>
+                                <div class="fw-bold fs-5 text-truncate">
+                                    <t t-if="record.code.value">
+                                        <t t-esc="record.code.value"/> -
+                                    </t>
+                                    <t t-esc="record.name.value"/>
+                                </div>
+                                <div class="mt-2">
+                                    <a name="%(sale_contracting_action_filtered)d" type="action">
+                                        <field name="contracting_count"/> Contracts
+                                    </a>
+                                </div>
+                            </main>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="sale_contracting_template_action" model="ir.actions.act_window">
+            <field name="name">Contracting Templates</field>
+            <field name="res_model">contracting.order.template</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new template of Contracting
+                </p>
+                <p>
+                    Templates are used to prefigure subscription that
+                    can be selected by the salespeople to quickly configure the
+                    terms and conditions of the Contracting.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_template_of_contracting"
+                  name="Contract Templates"
+                  action="sale_contracting_template_action"
+                  parent="menu_contracting_management_configuration" sequence="2"/>
+
+        <!--Sale Contracting Stage-->
+        <record id="sale_contracting_stage_view_form" model="ir.ui.view">
+            <field name="name">sale.contracting.stage.form</field>
+            <field name="model">contracting.order.stage</field>
+            <field name="arch" type="xml">
+                <form string="Contracting Stage">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="sequence"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="in_progress"/>
+                            </group>
+                        </group>
+                        <separator string="Requirements"/>
+                        <field name="description"
+                               placeholder="Give your team the requirements to move a subscription to this stage."/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_contracting_stage_view_list" model="ir.ui.view">
+            <field name="name">sale.contracting.stage.list</field>
+            <field name="model">contracting.order.stage</field>
+            <field name="arch" type="xml">
+                <list string="Contracting Stages">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                    <field name="in_progress"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="sale_contracting_stage_action" model="ir.actions.act_window">
+            <field name="name">Stages</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">contracting.order.stage</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new Contracting stage
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_stage_of_contracting"
+                  name="Contract Stages"
+                  action="sale_contracting_stage_action"
+                  parent="menu_contracting_management_configuration" sequence="1"/>
+
+    </data>
+</odoo>

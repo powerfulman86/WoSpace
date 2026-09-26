@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_subcontract_order_pivot" model="ir.ui.view">
+         <field name="name">subcontracting.report.pivot</field>
+         <field name="model">subcontracting.report</field>
+         <field name="arch" type="xml">
+             <pivot string="Sub-Contract Analysis">
+                 <field name="team_id" type="col"/>
+                 <field name="contract_date" interval="month" type="row"/>
+                 <field name="contract_amount" type="measure"/>
+             </pivot>
+         </field>
+    </record>
+
+    <record id="view_subcontract_order_graph" model="ir.ui.view">
+        <field name="name">subcontracting.report.graph</field>
+        <field name="model">subcontracting.report</field>
+        <field name="arch" type="xml">
+            <graph string="Sub-Contract Analysis" type="line">
+                <field name="contract_date" interval="day"/>
+                <field name="contract_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_subcontract_order_tree" model="ir.ui.view">
+        <field name="name">subcontracting.report.tree</field>
+        <field name="model">subcontracting.report</field>
+        <field name="arch" type="xml">
+            <list string="Sub-Contract Analysis">
+                <field name="contract_date" widget="date"/>
+                <field name="sub_contract_id" optional="show"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                <field name="team_id" optional="show"/>
+                <field name="company_id" optional="show" groups="base.group_multi_company"/>
+                <field name="state" optional="hide"/>
+                <field name="invoice_status"/>
+                <field name="contract_amount" optional="hide" sum="Sum of Amount"/>
+                <field name="contract_actual_amount" optional="show" sum="Sum of Actual"/>
+                <field name="amount_invoiced" optional="show" sum="Sum of Billed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_subcontract_order_search" model="ir.ui.view">
+        <field name="name">subcontracting.report.search</field>
+        <field name="model">subcontracting.report</field>
+        <field name="arch" type="xml">
+            <search string="Sub-Contracting Orders Analysis">
+                <field name="contract_date"/>
+                <filter string="Date" name="year" invisible="1" date="contract_date" default_period="year"/>
+                <filter name="filter_date" date="contract_date" default_period="month"/>
+                <filter name="filter_order_date" invisible="1" string="Order Date: Last 365 Days"
+                        domain="[('contract_date', '&gt;=', (datetime.datetime.combine(context_today() + relativedelta(days=-365), datetime.time(0,0,0))).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <separator/>
+                <field name="user_id"/>
+                <field name="team_id"/>
+                <field name="partner_id"/>
+                <field name="state"/>
+                <group>
+                    <filter string="Salesperson" name="User" context="{'group_by':'user_id'}"/>
+                    <filter string="Sales Team" name="sales_channel" context="{'group_by':'team_id'}"/>
+                    <filter string="Vendor" name="Customer" context="{'group_by':'partner_id'}"/>
+                    <filter string="State" name="state" context="{'group_by':'state'}"/>
+                    <filter string="Billing Status" name="invoice_status" context="{'group_by':'invoice_status'}"/>
+                    <filter string="Company" name="company" groups="base.group_multi_company"
+                            context="{'group_by':'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_subcontract_orders_report" model="ir.actions.act_window">
+        <field name="name">Sub-Contracting Orders Analysis</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">subcontracting.report</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="search_view_id" ref="view_subcontract_order_search"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_subcontracting_reporting_orders"
+              name="Sub-Contracting Orders"
+              action="action_subcontract_orders_report"
+              parent="menu_contracting_reporting"
+              sequence="2"/>
+</odoo>

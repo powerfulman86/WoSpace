@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--module authority-->
+    <record model="ir.module.category" id="module_category_sale_contracting">
+        <field name="name">Contracting</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="sale_contracting_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_category_sale_contracting"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="sale_contracting_supervisor" model="res.groups">
+        <field name="name">Supervisor</field>
+        <field name="category_id" ref="module_category_sale_contracting"/>
+        <field name="implied_ids" eval="[(4, ref('contracting_management.sale_contracting_user'))]"/>
+    </record>
+
+    <record id="sale_contracting_coordinator" model="res.groups">
+        <field name="name">Co-Ordinator</field>
+        <field name="category_id" ref="module_category_sale_contracting"/>
+        <field name="implied_ids" eval="[(4, ref('contracting_management.sale_contracting_supervisor'))]"/>
+    </record>
+
+    <record id="sale_contracting_manager" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="module_category_sale_contracting"/>
+        <field name="implied_ids" eval="[(4, ref('contracting_management.sale_contracting_coordinator'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>
