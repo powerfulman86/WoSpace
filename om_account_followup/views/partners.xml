@@ -40,7 +40,7 @@
             <field name="inherit_id" ref="base.view_res_partner_filter"/>
             <field name="arch" type="xml">
                 <xpath expr="//group[1]" position="after">
-                    <group>
+                    <group string="Follow-up">
                         <filter string="Partners with Overdue Credits" domain="[('payment_amount_overdue', '>', 0.0)]"
                                 name="credits"/>
                         <separator/>

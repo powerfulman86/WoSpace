@@ -7,10 +7,11 @@
             <field name="name">First polite payment follow-up reminder email</field>
             <field name="email_from">{{ (user.email or '') }}</field>
             <field name="subject">{{ user.company_id.name }} Payment Reminder</field>
+            <field name="email_to">{{ object.email }}</field>
             <field name="lang">{{ object.lang }}</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="auto_delete" eval="True"/>
-            <field name="body_html"><![CDATA[
+            <field name="body_html" type="html">
 <div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
 
     <p>Dear <t t-out="object.name"/>,</p>
@@ -37,7 +38,7 @@ Best Regards,
     <br/>
 
 </div>
-            ]]></field>
+            </field>
         </record>
 
         <!--Mail template level 1 -->
@@ -49,7 +50,7 @@ Best Regards,
             <field name="lang">{{ object.lang }}</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="auto_delete" eval="True"/>
-            <field name="body_html"><![CDATA[
+            <field name="body_html" type="html">
 <div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
     
     <p>Dear <t t-out="object.name"/>,</p>
@@ -77,7 +78,7 @@ Best Regards,
     <br/>
 
 </div>
-            ]]></field>
+            </field>
         </record>
 
         <!--Mail template level 2 -->
@@ -89,7 +90,7 @@ Best Regards,
             <field name="lang">{{ object.lang }}</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="auto_delete" eval="True"/>
-            <field name="body_html"><![CDATA[
+            <field name="body_html" type="html">
 <div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
     
     <p>Dear <t t-out="object.name"/>,</p>
@@ -114,7 +115,7 @@ Best Regards,
     <br/>
 
 </div>
-            ]]></field>
+            </field>
         </record>
 
         <!-- Default follow up message -->
@@ -126,7 +127,8 @@ Best Regards,
             <field name="lang">{{ object.lang }}</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="auto_delete" eval="True"/>
-            <field name="body_html"><![CDATA[
+<!--            <field name="body_html"><![CDATA[-->
+            <field name="body_html" type="html">
 <div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
     
     <p>Dear <t t-out="object.name"/>,</p>
@@ -148,7 +150,7 @@ Best Regards,
 
 <br/>
 </div>
-            ]]></field>
+            </field>
         </record>
 
         <record id="demo_followup1" model="followup.followup" forcecreate="False">

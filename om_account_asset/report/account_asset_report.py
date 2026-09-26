@@ -24,8 +24,8 @@ class AssetAssetReport(models.Model):
     company_id = fields.Many2one('res.company', string='Company', readonly=True)
 
     def init(self):
-        tools.drop_view_if_exists(self.env.cr, 'asset_asset_report')
-        self.env.cr.execute("""
+        tools.drop_view_if_exists(self._cr, 'asset_asset_report')
+        self._cr.execute("""
             create or replace view asset_asset_report as (
                 select
                     min(dl.id) as id,
@@ -38,16 +38,16 @@ class AssetAssetReport(models.Model):
                       END) as gross_value,
                     dl.amount as depreciation_value,
                     dl.amount as installment_value,
-                    (CASE WHEN dl.move_check
+                    (CASE WHEN m.state = 'posted'
                       THEN dl.amount
                       ELSE 0
                       END) as posted_value,
-                    (CASE WHEN NOT dl.move_check
+                    (CASE WHEN m.state IS NULL OR m.state = 'draft'
                       THEN dl.amount
                       ELSE 0
                       END) as unposted_value,
                     dl.asset_id as asset_id,
-                    dl.move_check as move_check,
+                    (m.state = 'posted') as move_check,
                     a.category_id as asset_category_id,
                     a.partner_id as partner_id,
                     a.state as state,
@@ -56,10 +56,11 @@ class AssetAssetReport(models.Model):
                     a.company_id as company_id
                 from account_asset_depreciation_line dl
                     left join account_asset_asset a on (dl.asset_id=a.id)
+                    left join account_move m on (dl.move_id=m.id)
                     left join (select min(d.id) as id,ac.id as ac_id from account_asset_depreciation_line as d inner join account_asset_asset as ac ON (ac.id=d.asset_id) group by ac_id) as dlmin on dlmin.ac_id=a.id
-                where a.active is true 
+                where a.active is true and (m.state is null or m.state != 'cancel')
                 group by
                     dl.amount,dl.asset_id,dl.depreciation_date,dl.name,
-                    a.date, dl.move_check, a.state, a.category_id, a.partner_id, a.company_id,
+                    a.date, m.state, a.state, a.category_id, a.partner_id, a.company_id,
                     a.value, a.id, a.salvage_value, dlmin.id
         )""")

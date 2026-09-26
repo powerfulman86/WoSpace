@@ -1,11 +1,11 @@
 {
-    'name': 'Odoo 19 Accounting Community',
-    'version': '1.0.3',
+    'name': 'Odoo 18 Accounting Community',
+    'version': '1.0.5',
     'category': 'Accounting',
     'summary': 'Accounting Reports, Asset Management and Budget, Recurring Payments, '
                'Lock Dates, Fiscal Year, Accounting Dashboard, Financial Reports, '
                'Customer Follow up Management, Bank Statement Import',
-    'description': 'Odoo 19 Financial Reports, Asset Management and '
+    'description': 'Odoo 18 Financial Reports, Asset Management and '
                    'Budget, Financial Reports, Recurring Payments, '
                    'Bank Statement Import, Customer Follow Up Management,'
                    'Account Lock Date, Accounting Dashboard',

@@ -3,8 +3,9 @@
 You need to:
 
 1.  Create manually or open draft picking
-2.  Add move lines and assign an **analytic account** in Analytic
-    Distribution field
+2.  Add move lines and select an **Analytic Account**.
+3.  The **Analytic Plan** is shown from the selected account and the system
+    automatically creates a 100% analytic distribution for that account.
 
 ## Assigned Journal Items created from Stock Move with Analytic Account
 

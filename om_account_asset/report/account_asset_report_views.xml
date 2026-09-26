@@ -41,11 +41,11 @@
                         help="Posted depreciation lines" context="{'unposted_value_visible': 0}"/>
                 <field name="asset_id"/>
                 <field name="asset_category_id"/>
-                <group>
+                <group expand="0" string="Extended Filters...">
                     <field name="partner_id" filter_domain="[('partner_id','child_of',self)]"/>
                     <field name="company_id" groups="base.group_multi_company"/>
                 </group>
-                <group>
+                <group expand="1" string="Group By">
                     <filter string="Asset" name="asset" context="{'group_by':'asset_id'}"/>
                     <filter string="Asset Category" name="asset_category"
                             context="{'group_by':'asset_category_id'}"/>

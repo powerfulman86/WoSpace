@@ -9,32 +9,29 @@ class TestStockScrap(TransactionCase):
     def setUp(self):
         super().setUp()
 
-        self.product = self.env["product.product"].create(
-            {
-                "name": "Test Scrap Product",
-                "type": "consu",
-                "is_storable": True,
-            }
-        )
+        self.product = self.env.ref("product.product_product_4")
         self.warehouse = self.env.ref("stock.warehouse0")
         self.location = self.warehouse.lot_stock_id
-        analytic_plan = self.env["account.analytic.plan"].create({"name": "Test Plan"})
-        analytic_account = self.env["account.analytic.account"].create(
-            {"name": "Test Analytic Account", "plan_id": analytic_plan.id}
-        )
-        self.analytic_distribution = {str(analytic_account.id): 100.0}
+        self.analytic_account = self.env.ref("analytic.analytic_agrolait")
+        self.analytic_distribution = {str(self.analytic_account.id): 100.0}
+        # analytic.analytic_agrolait belongs to analytic.analytic_plan_projects
         self.analytic_applicability = self.env["account.analytic.applicability"].create(
             {
                 "business_domain": "stock_move",
                 "applicability": "optional",
-                "analytic_plan_id": analytic_plan.id,
+                "analytic_plan_id": self.env.ref("analytic.analytic_plan_projects").id,
             }
         )
 
     def __update_qty_on_hand_product(self, product, new_qty):
-        self.env["stock.quant"]._update_available_quantity(
-            product, self.location, new_qty
+        qty_wizard = self.env["stock.change.product.qty"].create(
+            {
+                "product_id": product.id,
+                "product_tmpl_id": product.product_tmpl_id.id,
+                "new_quantity": new_qty,
+            }
         )
+        qty_wizard.change_product_qty()
 
     def _create_scrap(self, analytic_distribution=False):
         scrap_data = {
@@ -66,6 +63,14 @@ class TestStockScrap(TransactionCase):
         self.__update_qty_on_hand_product(self.product, 1)
         scrap = self._create_scrap()
         self._validate_scrap_no_error(scrap)
+
+    def test_scrap_analytic_account_generates_100_percent_distribution(self):
+        scrap = self._create_scrap()
+
+        scrap.analytic_account_id = self.analytic_account
+
+        self.assertEqual(scrap.analytic_distribution, self.analytic_distribution)
+        self.assertEqual(scrap.analytic_plan_id, self.analytic_account.plan_id)
 
     def test_scrap_without_analytic_mandatory(self):
         self.analytic_applicability.write({"applicability": "mandatory"})

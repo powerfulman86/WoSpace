@@ -9,11 +9,15 @@
         <field name="arch" type="xml">
             <field name="product_id" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
                     optional="hide"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'stock_move'}"
+                />
+                <field
+                    name="analytic_plan_id"
+                    optional="hide"
+                    readonly="1"
+                    groups="analytic.group_analytic_accounting"
                 />
             </field>
         </field>
@@ -42,11 +46,15 @@
         <field name="arch" type="xml">
             <field name="product_id" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
                     optional="hide"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'stock_move'}"
+                />
+                <field
+                    name="analytic_plan_id"
+                    optional="hide"
+                    readonly="1"
+                    groups="analytic.group_analytic_accounting"
                 />
             </field>
         </field>

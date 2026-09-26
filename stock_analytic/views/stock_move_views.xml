@@ -7,10 +7,14 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_uom']" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'stock_move'}"
+                />
+                <field
+                    name="analytic_plan_id"
+                    optional="hide"
+                    readonly="1"
+                    groups="analytic.group_analytic_accounting"
                 />
             </xpath>
         </field>
@@ -22,11 +26,15 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='location_dest_id']" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
                     optional="hide"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'stock_move'}"
+                />
+                <field
+                    name="analytic_plan_id"
+                    optional="hide"
+                    readonly="1"
+                    groups="analytic.group_analytic_accounting"
                 />
             </xpath>
         </field>
@@ -38,10 +46,13 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='location_dest_id']" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'stock_move'}"
+                />
+                <field
+                    name="analytic_plan_id"
+                    readonly="1"
+                    groups="analytic.group_analytic_accounting"
                 />
             </xpath>
         </field>
@@ -56,8 +67,13 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='location_dest_id']" position="after">
                 <field
-                    name="analytic_distribution"
-                    widget="analytic_distribution"
+                    name="analytic_account_id"
+                    groups="analytic.group_analytic_accounting"
+                />
+                <field
+                    name="analytic_plan_id"
+                    optional="hide"
+                    readonly="1"
                     groups="analytic.group_analytic_accounting"
                 />
             </xpath>

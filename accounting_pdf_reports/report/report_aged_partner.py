@@ -42,12 +42,14 @@ class ReportAgedPartnerBalance(models.AbstractModel):
         res = []
         total = []
         cr = self.env.cr
-        user_company = self.env.user.company_id
+        # the company selected in the wizard, falling back on the active company
+        # (NOT self.env.user.company_id, which ignores the company switcher)
+        company = self.env['res.company'].browse(self._context.get('company_id')) or self.env.company
+        user_company = company
         user_currency = user_company.currency_id
-        company_ids = self.env.context.get('company_ids') or [user_company.id]
+        company_ids = self._context.get('company_ids') or [user_company.id]
         move_state = ['draft', 'posted']
-        date = self.env.context.get('date') or fields.Date.today()
-        company = self.env['res.company'].browse(self.env.context.get('company_id')) or self.env.company
+        date = self._context.get('date') or fields.Date.today()
 
         if target_move == 'posted':
             move_state = ['posted']
@@ -226,7 +228,7 @@ class ReportAgedPartnerBalance(models.AbstractModel):
                 values['name'] = _('Unknown Partner')
                 values['trust'] = False
 
-            if at_least_one_amount or (self.env.context.get('include_nullified_amount') and lines[partner['partner_id']]):
+            if at_least_one_amount or (self._context.get('include_nullified_amount') and lines[partner['partner_id']]):
                 res.append(values)
 
         return res, total, lines

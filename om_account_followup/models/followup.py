@@ -11,10 +11,8 @@ class FollowupFollowup(models.Model):
     followup_line = fields.One2many('followup.line', 'followup_id', 'Follow-up', copy=True)
     company_id = fields.Many2one('res.company', 'Company', required=True, default=lambda self: self.env.company)
 
-    _company_uniq = models.Constraint(
-        'unique(company_id)',
-        'Only one follow-up per company is allowed',
-    )
+    _sql_constraints = [('company_uniq', 'unique(company_id)',
+                         'Only one follow-up per company is allowed')]
 
 
 class FollowupLine(models.Model):
@@ -72,10 +70,8 @@ Best Regards,
     email_template_id = fields.Many2one('mail.template', 'Email Template',
                                         ondelete='set null')
 
-    _days_uniq = models.Constraint(
-        'unique(followup_id, delay)',
-        'Days of the follow-up levels must be different',
-    )
+    _sql_constraints = [('days_uniq', 'unique(followup_id, delay)',
+                         'Days of the follow-up levels must be different')]
 
     @api.constrains('description')
     def _check_description(self):
@@ -85,7 +81,7 @@ Best Regards,
                     line.description % {'partner_name': '', 'date': '',
                                         'user_signature': '',
                                         'company_name': ''}
-                except ValidationError:
+                except (KeyError, ValueError, TypeError):
                     raise ValidationError(
                         _('Your description is invalid, use the right legend '
                           'or %% if you want to use the percent character.'))

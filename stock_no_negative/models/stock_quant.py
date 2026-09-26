@@ -17,7 +17,6 @@ class StockQuant(models.Model):
         # for subcontracting receipts.
         if self.env.context.get("skip_negative_qty_check"):
             return
-
         p = self.env["decimal.precision"].precision_get("Product Unit of Measure")
         check_negative_qty = (
             config["test_enable"] and self.env.context.get("test_stock_no_negative")
@@ -25,41 +24,34 @@ class StockQuant(models.Model):
         if not check_negative_qty:
             return
 
-        negative_lines = []
-
         for quant in self:
             disallowed_by_product = (
                 not quant.product_id.allow_negative_stock
                 and not quant.product_id.categ_id.allow_negative_stock
             )
             disallowed_by_location = not quant.location_id.allow_negative_stock
-
             if (
                 float_compare(quant.quantity, 0, precision_digits=p) == -1
                 and quant.product_id.is_storable
-                and quant.location_id.usage in ("internal", "transit")
+                and quant.location_id.usage in ["internal", "transit"]
                 and disallowed_by_product
                 and disallowed_by_location
             ):
-                lot_text = ""
+                msg_add = ""
                 if quant.lot_id:
-                    lot_text = _(" | Lot: %s") % quant.lot_id.display_name
-
-                negative_lines.append(
+                    msg_add = _(" lot %(name)s", name=quant.lot_id.display_name)
+                raise ValidationError(
                     _(
-                        "- Product: %(product)s%(lot)s | Location: %(location)s | Available after validation: %(qty)s"
-                    ) % {
-                        "product": quant.product_id.display_name,
-                        "lot": lot_text,
-                        "location": quant.location_id.complete_name,
-                        "qty": quant.quantity,
-                    }
+                        "You cannot validate this stock operation because the "
+                        "stock level of the product '{name}'{name_lot} would "
+                        "become negative "
+                        "({q_quantity}) on the stock location '{complete_name}' "
+                        "and negative stock is "
+                        "not allowed for this product and/or location."
+                    ).format(
+                        name=quant.product_id.display_name,
+                        name_lot=msg_add,
+                        q_quantity=quant.quantity,
+                        complete_name=quant.location_id.complete_name,
+                    )
                 )
-
-        if negative_lines:
-            raise ValidationError(
-                _(
-                    "You cannot validate this stock operation because the following products would become negative:\n\n%s"
-                )
-                % "\n".join(negative_lines)
-            )

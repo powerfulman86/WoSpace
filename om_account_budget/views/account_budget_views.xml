@@ -33,7 +33,7 @@
 
     <menuitem id="menu_budget_post_form"
               action="open_budget_post_form"
-              parent="account.account_account_menu"
+              parent="account.account_management_menu"
               sequence="5"/>
 
     <record id="view_budget_post_form" model="ir.ui.view">
@@ -189,7 +189,7 @@
                                 </div>
                                 <div class="col-4">
                                     <span class="float-right">
-                                        <field name="state" widget="kanban_label_selection"
+                                        <field name="state" widget="label_selection"
                                                options="{'classes': {'draft': 'default', 'done': 'success'}}"/>
                                     </span>
                                 </div>
@@ -248,7 +248,7 @@
     </record>
 
     <menuitem id="menu_act_crossovered_budget_view"
-              parent="account.account_account_menu"
+              parent="account.account_management_menu"
               name="Budgets"
               action="act_crossovered_budget_view"
               sequence="60"
@@ -263,7 +263,7 @@
                 <field name="crossovered_budget_id"/>
                 <filter name="filter_not_cancelled" string="Not Cancelled"
                         domain="[('crossovered_budget_state','!=','cancel')]"/>
-                <group>
+                <group expand="0" string="Group By">
                     <filter name="group_crossevered_budgdet_id" string="Budgets"
                             domain="[]" context="{'group_by':'crossovered_budget_id'}"/>
                 </group>

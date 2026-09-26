@@ -21,8 +21,8 @@ class AccountFollowupStat(models.Model):
 
     @api.model
     def init(self):
-        tools.drop_view_if_exists(self.env.cr, 'followup_stat')
-        self.env.cr.execute("""
+        tools.drop_view_if_exists(self._cr, 'followup_stat')
+        self._cr.execute("""
             create or replace view followup_stat as (
                 SELECT
                     l.id as id,

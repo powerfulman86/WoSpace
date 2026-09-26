@@ -85,7 +85,7 @@
                         <group invisible="type == 'sale'" string="Depreciation Method">
                             <field name="method" widget="radio"/>
                             <field name="method_progress_factor"
-                                   invisible="method_time == 'linear'" required="method == 'degressive'"/>
+                                   invisible="method == 'linear'" required="method == 'degressive'"/>
                             <field name="prorata" invisible="method_time == 'end'"/>
                         </group>
                     </group>
@@ -153,7 +153,7 @@
                 <filter string="Purchase" name="purchase" domain="[('type','=', 'purchase')]" help="Assets"/>
                 <field name="name" string="Category"/>
                 <field name="journal_id"/>
-                <group>
+                <group expand="0" string="Group By...">
                     <filter string="Type" name="type" domain="[]" context="{'group_by':'type'}"/>
                 </group>
             </search>
@@ -169,7 +169,7 @@
     </record>
 
     <menuitem id="menu_action_account_asset_asset_list_normal_purchase"
-              parent="account.account_account_menu"
+              parent="account.account_management_menu"
               action="action_account_asset_asset_list_normal_purchase"
               sequence="6"/>
 

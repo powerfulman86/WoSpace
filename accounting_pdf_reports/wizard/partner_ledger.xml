@@ -56,7 +56,7 @@
             'default_reconciled': True,
             'hide_partner':1,
         }</field>
-        <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+        <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
     </record>
 
 </odoo>

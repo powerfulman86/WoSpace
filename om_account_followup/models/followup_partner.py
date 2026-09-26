@@ -24,8 +24,8 @@ class FollowupStatByPartner(models.Model):
 
     @api.model
     def init(self):
-        tools.drop_view_if_exists(self.env.cr, 'followup_stat_by_partner')
-        self.env.cr.execute("""
+        tools.drop_view_if_exists(self._cr, 'followup_stat_by_partner')
+        self._cr.execute("""
             create view followup_stat_by_partner as (
                 SELECT
                     l.partner_id * 10000::bigint + l.company_id as id,

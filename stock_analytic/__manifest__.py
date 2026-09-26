@@ -7,8 +7,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
     "name": "Stock Analytic",
-    "summary": "Adds analytic distribution in stock move",
-    "version": "19.0.1.0.0",
+    "summary": "Adds automatic analytic account distribution in stock moves",
+    "version": "18.0.1.3.0",
     "author": "Julius Network Solutions, "
     "ClearCorp, OpenSynergy Indonesia, "
     "Hibou Corp., "
@@ -23,6 +23,7 @@
         "views/stock_scrap_views.xml",
         "views/stock_move_line_views.xml",
         "views/stock_picking_views.xml",
+        "views/stock_valuation_layer_views.xml",
     ],
     "installable": True,
 }
