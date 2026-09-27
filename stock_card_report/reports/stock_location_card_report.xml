@@ -1,0 +1,142 @@
+<odoo>
+
+    <template id="report_stock_location_card_report_html">
+        <div class="o_stock_card_reports_page">
+            <t t-call="stock_card_report.report_buttons"/>
+            <t t-call="stock_card_report.report_stock_location_card_report_base"/>
+        </div>
+    </template>
+
+    <template id="report_stock_location_card_report_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_card_report.internal_layout">
+                    <t t-call="stock_card_report.report_stock_location_card_report_base"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_stock_location_card_report_base">
+        <t t-foreach="o._get_report_locations()" t-as="location">
+            <div class="page">
+                <div class="row">
+                    <t t-set="title">Location Card -
+                        <t t-raw="location.complete_name or location.display_name"/>
+                    </t>
+                    <h4 class="mt0" t-esc="title" style="text-align: center; color: #000000; font-size: 18px; font-weight: bold;"/>
+                </div>
+
+                <t t-call="stock_card_report.report_stock_location_card_report_filters"/>
+
+                <t t-foreach="o._get_location_categories(location)" t-as="category">
+                    <div class="mt8 mb4" style="font-weight: bold; font-size: 14px; color: #000000; background-color: #e9ecef; padding: 5px;">
+                        Category:
+                        <span t-esc="category.complete_name or category.display_name"/>
+                    </div>
+
+                    <t t-foreach="o._get_location_category_products(location, category)" t-as="product">
+                        <div class="mt4 mb4" style="font-weight: bold; font-size: 13px; color: #000000; padding: 4px;">
+                            Product:
+                            <span t-esc="product.display_name"/>
+                        </div>
+
+                        <div class="act_as_table data_table mt4" style="width: 100%;">
+                            <t t-call="stock_card_report.report_stock_location_card_lines_header"/>
+                            <t t-foreach="o._get_location_product_lines(location, product)" t-as="location_line">
+                                <t t-call="stock_card_report.report_stock_location_card_lines"/>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+                <p style="page-break-before:always;"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_stock_location_card_report_filters">
+        <div class="act_as_table data_table" style="width: 100%;">
+            <div class="act_as_row labels">
+                <div class="act_as_cell">Date From</div>
+                <div class="act_as_cell">Date To</div>
+                <div class="act_as_cell">Warehouses</div>
+                <div class="act_as_cell">Locations</div>
+                <div class="act_as_cell">Product Categories</div>
+                <div class="act_as_cell">Products</div>
+            </div>
+            <div class="act_as_row">
+                <div class="act_as_cell">
+                    <span t-field="o.date_from"/>
+                </div>
+                <div class="act_as_cell">
+                    <span t-field="o.date_to"/>
+                </div>
+                <div class="act_as_cell">
+                    <span t-if="o.warehouse_ids" t-esc="', '.join(o.warehouse_ids.mapped('display_name'))"/>
+                    <span t-else="">All Warehouses</span>
+                </div>
+                <div class="act_as_cell">
+                    <span t-if="o.location_ids" t-esc="', '.join(o.location_ids.mapped('complete_name'))"/>
+                    <span t-else="">All Internal Locations</span>
+                </div>
+                <div class="act_as_cell">
+                    <span t-if="o.product_categ_ids" t-esc="', '.join(o.product_categ_ids.mapped('display_name'))"/>
+                    <span t-else="">All Categories</span>
+                </div>
+                <div class="act_as_cell">
+                    <span t-if="o.product_ids" t-esc="', '.join(o.product_ids.mapped('display_name'))"/>
+                    <span t-else="">All Products</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_stock_location_card_lines_header">
+        <div class="act_as_thead">
+            <div class="act_as_row labels">
+                <div class="act_as_cell">Date</div>
+                <div class="act_as_cell">Transaction Reference</div>
+                <div class="act_as_cell">Source Document</div>
+                <div class="act_as_cell">Source Location</div>
+                <div class="act_as_cell">Destination Location</div>
+                <div class="act_as_cell">Qty</div>
+                <div class="act_as_cell">In</div>
+                <div class="act_as_cell">Out</div>
+                <div class="act_as_cell">Balance</div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_stock_location_card_lines">
+        <div class="act_as_row lines">
+            <div class="act_as_cell left">
+                <t t-if="location_line.date" t-esc="location_line.date.strftime('%Y-%m-%d')"/>
+            </div>
+            <div class="act_as_cell left">
+                <t t-esc="location_line.reference or ''"/>
+            </div>
+            <div class="act_as_cell left">
+                <t t-esc="location_line.source_document or ''"/>
+            </div>
+            <div class="act_as_cell left">
+                <t t-esc="location_line.source_location_id.complete_name or ''"/>
+            </div>
+            <div class="act_as_cell left">
+                <t t-esc="location_line.dest_location_id.complete_name or ''"/>
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(location_line.product_qty)"/>
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(location_line.product_in)"/>
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(location_line.product_out)"/>
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(location_line.balance)"/>
+            </div>
+        </div>
+    </template>
+
+</odoo>

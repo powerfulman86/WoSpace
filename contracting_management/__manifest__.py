@@ -16,13 +16,12 @@
     # any module necessary for this one to work correctly
     'depends': ['base',
                 'portal',
-                'web_cohort',
                 'sale',
                 'purchase',
                 'stock',
                 'project',
                 'account',
-                'timesheet_grid',
+                'hr_timesheet',
                 'purchase_enhancement',
                 'sale_enhancement',],
 

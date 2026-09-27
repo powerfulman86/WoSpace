@@ -1,0 +1,94 @@
+<odoo>
+
+    <record id="stock_location_card_report_line_view_tree" model="ir.ui.view">
+        <field name="name">stock.location.card.report.line.list</field>
+        <field name="model">stock.location.card.report.line</field>
+        <field name="arch" type="xml">
+            <list string="Location Card Lines" create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="product_categ_id"/>
+                <field name="product_id"/>
+                <field name="reference"/>
+                <field name="source_document"/>
+                <field name="source_location_id"/>
+                <field name="dest_location_id"/>
+                <field name="product_qty" sum="Total Qty"/>
+                <field name="product_in" sum="Total In"/>
+                <field name="product_out" sum="Total Out"/>
+                <field name="balance"/>
+                <field name="product_uom"/>
+                <field name="picking_id"/>
+                <field name="move_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="stock_location_card_report_line_view_pivot" model="ir.ui.view">
+        <field name="name">stock.location.card.report.line.pivot</field>
+        <field name="model">stock.location.card.report.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Location Card Pivot">
+                <field name="location_id" type="row"/>
+                <field name="product_categ_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="product_qty" type="measure"/>
+                <field name="product_in" type="measure"/>
+                <field name="product_out" type="measure"/>
+                <field name="balance" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="stock_location_card_report_line_view_graph" model="ir.ui.view">
+        <field name="name">stock.location.card.report.line.graph</field>
+        <field name="model">stock.location.card.report.line</field>
+        <field name="arch" type="xml">
+            <graph string="Location Card Graph" type="bar">
+                <field name="location_id"/>
+                <field name="product_id"/>
+                <field name="product_in" type="measure"/>
+                <field name="product_out" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="stock_location_card_report_line_view_search" model="ir.ui.view">
+        <field name="name">stock.location.card.report.line.search</field>
+        <field name="model">stock.location.card.report.line</field>
+        <field name="arch" type="xml">
+            <search string="Location Card Lines">
+                <field name="location_id"/>
+                <field name="product_id"/>
+                <field name="product_categ_id"/>
+                <field name="reference"/>
+                <field name="source_document"/>
+                <field name="picking_id"/>
+                <field name="move_id"/>
+                <field name="source_location_id"/>
+                <field name="dest_location_id"/>
+                <separator/>
+                <filter name="initial" string="Initial Lines" domain="[('is_initial', '=', True)]"/>
+                <filter name="movement" string="Movement Lines" domain="[('is_initial', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_by_category" string="Product Category" context="{'group_by': 'product_categ_id'}"/>
+                    <filter name="group_by_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'date:month'}"/>
+                    <filter name="group_by_source_location" string="Source Location" context="{'group_by': 'source_location_id'}"/>
+                    <filter name="group_by_dest_location" string="Destination Location" context="{'group_by': 'dest_location_id'}"/>
+                    <filter name="group_by_picking" string="Picking" context="{'group_by': 'picking_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="stock_location_card_report_line_action" model="ir.actions.act_window">
+        <field name="name">Location Card Lines</field>
+        <field name="res_model">stock.location.card.report.line</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="stock_location_card_report_line_view_search"/>
+    </record>
+
+</odoo>
